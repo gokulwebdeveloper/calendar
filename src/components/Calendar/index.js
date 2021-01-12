@@ -1,238 +1,111 @@
 import React from "react";
 import moment from "moment";
-
+import "react-responsive-modal/styles.css";
+import { Modal } from "react-responsive-modal";
+var currentDate = moment().format('YYYY-MM-DD');
+console.log(currentDate);
 export default class Calendar extends React.Component {
+  state = {
+    open: false,
+    selectedContent:[]
+  };
 
-  constructor(props){
-    super(props);
-    this.state = {
-      showCalendarTable: true,
-      dateObject: moment().subtract(props.month, 'month'),
-      selectedDay: null
-    };
+  onOpenModal = () => {
+  this.setState({ open: true });
+  };
+
+  onCloseModal = () => {
+    this.setState({ open: false });
+  };
+
+  getMonth = (monthValue) => {
+      return ( 
+        <span className="calendar-label">
+          {moment().subtract(monthValue, 'month').format("MMMM")}
+        </span>
+      );
   }
+
+  checkStatus = (presentDate) => {
+    const currentvalue = this.props.dataDisplay.criticalData;
+     const datavalue = [];
+    const chkValue =  currentvalue.map(val => {
+        const startDate = moment(val['start_time']).format('YYYY-MM-DD');
+        if(startDate === presentDate){         
+          datavalue.push(val)
+          return (
+              <span className={`tagDisplay red`} onClick={()=>this.onDayClick(datavalue)}>&nbsp;</span>
+          )
+        }else{
+          return null;
+        }
+    })
+      
+      return chkValue;
+  }
+
+  getYear = (monthValue) => {
+    return (  
+      <span>
+        {moment().subtract(monthValue, 'month').format("Y")}
+      </span>
+    );
+  }
+
   weekdayshort = moment.weekdaysShort();
-  daysInMonth = () => {
-    return this.state.dateObject.daysInMonth();
-  };
-  year = () => {
-    return this.state.dateObject.format("Y");
-  };
-  currentDay = () => {
-    return this.state.dateObject.format("D");
-  };
-  firstDayOfMonth = () => {
-    let dateObject = this.state.dateObject;
-    let firstDay = moment(dateObject)
-      .startOf("month")
-      .format("d"); // Day of week 0...1..5...6
-    return firstDay;
-  };
-  month = () => {
-    return this.state.dateObject.format("MMMM");
-  };
-  showMonth = (e, month) => {
-    this.setState({
-      showMonthTable: !this.state.showMonthTable,
-      showCalendarTable: !this.state.showCalendarTable
-    });
-  };
-  setMonth = month => {
-    let monthNo = this.state.allmonths.indexOf(month);
-    let dateObject = Object.assign({}, this.state.dateObject);
-    dateObject = moment(dateObject).set("month", monthNo);
-    this.setState({
-      dateObject: dateObject,
-      showMonthTable: !this.state.showMonthTable,
-      showCalendarTable: !this.state.showCalendarTable
-    });
-  };
-  MonthList = props => {
-    let months = [];
-    props.data.map(data => {
-      months.push(
-        <td
-          key={data}
-          className="calendar-month"
-          onClick={e => {
-            this.setMonth(data);
-          }}
-        >
-          <span>{data}</span>
-        </td>
-      );
-    });
-    let rows = [];
-    let cells = [];
 
-    months.forEach((row, i) => {
-      if (i % 3 !== 0 || i == 0) {
-        cells.push(row);
-      } else {
-        rows.push(cells);
-        cells = [];
-        cells.push(row);
-      }
-    });
-    rows.push(cells);
-    let monthlist = rows.map((d, i) => {
-      return <tr>{d}</tr>;
-    });
+  getWeekShortName = () => {
 
-    return (
-      <table className="calendar-month">
-        <thead>
-          <tr>
-            <th colSpan="4">Select a Month</th>
-          </tr>
-        </thead>
-        <tbody>{monthlist}</tbody>
-      </table>
-    );
-  };
-  showYearEditor = () => {
-    this.setState({
-      showYearNav: true,
-      showCalendarTable: !this.state.showCalendarTable
-    });
-  };
-
-  onPrev = () => {
-    let curr = "";
-    if (this.state.showMonthTable == true) {
-      curr = "year";
-    } else {
-      curr = "month";
-    }
-    this.setState({
-      dateObject: this.state.dateObject.subtract(1, curr)
-    });
-  };
-  onNext = () => {
-    let curr = "";
-    if (this.state.showMonthTable == true) {
-      curr = "year";
-    } else {
-      curr = "month";
-    }
-    this.setState({
-      dateObject: this.state.dateObject.add(1, curr)
-    });
-  };
-  setYear = year => {
-    // alert(year)
-    let dateObject = Object.assign({}, this.state.dateObject);
-    dateObject = moment(dateObject).set("year", year);
-    this.setState({
-      dateObject: dateObject,
-      showMonthTable: !this.state.showMonthTable,
-      showYearNav: !this.state.showYearNav,
-      showMonthTable: !this.state.showMonthTable
-    });
-  };
-  onYearChange = e => {
-    this.setYear(e.target.value);
-  };
-  getDates(startDate, stopDate) {
-    var dateArray = [];
-    var currentDate = moment(startDate);
-    var stopDate = moment(stopDate);
-    while (currentDate <= stopDate) {
-      dateArray.push(moment(currentDate).format("YYYY"));
-      currentDate = moment(currentDate).add(1, "year");
-    }
-    return dateArray;
-  }
-  YearTable = props => {
-    let months = [];
-    let nextten = moment()
-      .set("year", props)
-      .add("year", 12)
-      .format("Y");
-
-    let tenyear = this.getDates(props, nextten);
-
-    tenyear.map(data => {
-      months.push(
-        <td
-          key={data}
-          className="calendar-month"
-          onClick={e => {
-            this.setYear(data);
-          }}
-        >
-          <span>{data}</span>
-        </td>
-      );
-    });
-    let rows = [];
-    let cells = [];
-
-    months.forEach((row, i) => {
-      if (i % 3 !== 0 || i == 0) {
-        cells.push(row);
-      } else {
-        rows.push(cells);
-        cells = [];
-        cells.push(row);
-      }
-    });
-    rows.push(cells);
-    let yearlist = rows.map((d, i) => {
-      return <tr>{d}</tr>;
-    });
-
-    return (
-      <table className="calendar-month">
-        <thead>
-          <tr>
-            <th colSpan="4">Select a Year</th>
-          </tr>
-        </thead>
-        <tbody>{yearlist}</tbody>
-      </table>
-    );
-  };
-  onDayClick = (e, d) => {
-    this.setState(
-      {
-        selectedDay: d
-      },
-      () => {
-        console.log("SELECTED DAY: ", this.state.selectedDay);
-      }
-    );
-  };
-  render() {
-    let weekdayshortname = this.weekdayshort.map(day => {
+    const weeks =  this.weekdayshort.map(day => {
       return <th key={day}>{day}</th>;
     });
+
+    return weeks;
+  }
+
+  onDayClick = (newData) => {
+    console.log("newdata",newData);
+    this.setState({
+      selectedContent:newData
+    },this.onOpenModal()); 
+      
+  };
+
+  convertToDays = (monthValue) => {  
+    const month = moment().subtract(monthValue, 'month').format("MM");
+    const year = moment().subtract(monthValue, 'month').format("YYYY");
+    const totalDays = moment().subtract(monthValue, 'month').daysInMonth();
+    let firstDay = moment().subtract(monthValue, 'month').startOf("month").format("d");
+ 
+    let numberDays=[];
     let blanks = [];
-    for (let i = 0; i < this.firstDayOfMonth(); i++) {
-      blanks.push(<td className="calendar-day empty">{""}</td>);
+
+    for (let i = 0; i < firstDay; i++) {
+      blanks.push(<td className="calendar-day empty" key={`empty${i}`}>{""}</td>);
     }
-    let daysInMonths = [];
-    for (let d = 1; d <= this.daysInMonth(); d++) {
-      let currentDay ="";
-      if(this.props.month==0){
-         currentDay = d == this.currentDay() ? "today" : "";
+    
+    for(let i=1; i<=totalDays; i++){ 
+      const newDate =year+"-"+month+"-"+i; 
+      const presentDate = moment(newDate).format('YYYY-MM-DD'); 
+
+      var currentDay ="";
+      if(presentDate === currentDate){
+        currentDay = "today";
       }
-     
-      // let selectedClass = (d == this.state.selectedDay ? " selected-day " : "")
-      daysInMonths.push(
-        <td key={d} className={`calendar-day ${currentDay}`}>
-          <span
-            onClick={e => {
-              this.onDayClick(e, d);
-            }}
-          >
-            {d}
+
+      
+      numberDays.push( 
+        <td key={i} className={`calendar-day ${currentDay}`}>
+          <span>
+            {i}   
+            {this.checkStatus(presentDate,i)}        
           </span>
-          <span className="greenTag">&nbsp;</span>
+          
         </td>
       );
     }
-    var totalSlots = [...blanks, ...daysInMonths];
+
+    let totalSlots = [...blanks, ...numberDays];
     let rows = [];
     let cells = [];
 
@@ -254,40 +127,65 @@ export default class Calendar extends React.Component {
       return <tr>{d}</tr>;
     });
 
-    return (
-      <div className="tail-datetime-calendar">
-        <div className="calendar-navi">
-           {!this.state.showMonthTable && !this.state.showYearEditor && (
-            <span
-             class="calendar-label"
-            >
-              {this.month()},
-            </span>
-          )}
-          <span>
-            {this.year()}
-          </span>
+    return daysinmonth;
 
-        
-        </div>
-        <div className="calendar-date">
-          {this.state.showYearNav && <this.YearTable props={this.year()} />}
-          {this.state.showMonthTable && (
-            <this.MonthList data={moment.months()} />
-          )}
-        </div>
+  }
+    
+  getTotalDays = (monthValue) => {
+    const totalCountDays = this.convertToDays(monthValue);
+    return totalCountDays;
+  }
 
-        {this.state.showCalendarTable && (
-          <div className="calendar-date">
-            <table className="calendar-day">
-              <thead>
-                <tr>{weekdayshortname}</tr>
-              </thead>
-              <tbody>{daysinmonth}</tbody>
-            </table>
+  popUpContent = (val) => {
+    const renderPopup = val.map(content =>{
+      return(
+            <div class="popContent">
+               <h2>{content.metrics_name}</h2>
+                <p>Dc Number : {content.dc}</p>
+                <p>User    : {content.user}</p>
+                <p>Comments : {content.comments}</p>
+                <p>Metrics Name : {content.metrics_name}</p>
+                <p> Date Time : {content.start_time}</p>
+                <p> Status : {content.status_name}</p>
+            </div>
+      );     
+    });
+    return renderPopup;
+  }
+
+  render(){
+    const monthMap =[0,1,2,3,4,5,6,7,8,9,10,11];
+    const { open } = this.state;
+    return(
+      <>
+       {monthMap.map(i => {      
+          return (<>   
+          <div className="tail-datetime-calendar">
+            <div className="calendar-navi">
+              <span
+              className="calendar-label"
+              >
+                {this.getMonth(i)}
+                
+              </span>
+              {this.getYear(i)}
+            </div>
+            <div className="calendar-date">
+              <table className="calendar-day">
+                <thead>
+                  <tr>{this.getWeekShortName()}</tr>
+                </thead>
+                <tbody>{this.getTotalDays(i)}</tbody>
+              </table>
+             </div>
           </div>
-        )}
-      </div>
+          </>
+        )
+        })} 
+        <Modal open={open} onClose={this.onCloseModal}>
+           {this.popUpContent(this.state.selectedContent)}
+        </Modal>
+      </>
     );
   }
 }

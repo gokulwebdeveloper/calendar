@@ -14,15 +14,23 @@
   width: 780px;
   margin: 0px auto;
 }
-.greenTag{
-  background: green;
+.tagDisplay{
   border-radius: 50%;
-  height: 5px;
-  width: 5px;
+  height: 8px;
+  width: 8px;
   display: block;
   position: absolute;
-  left: 41%;
+  left: 44%;
   top: -7px;
+}
+.green{
+  background:green;
+}
+.red{
+  background:red;
+}
+.amber{
+  background:grey;
 }
 .tail-datetime-calendar {
   width: 350px;
@@ -39,7 +47,7 @@
   border-radius: 3px;
   -webkit-border-radius: 3px;
   float: left;
-  min-height: 350px;
+  min-height: 365px;
 }
 .tail-datetime-calendar:after {
   clear: both;
@@ -62,6 +70,9 @@
   background-color: #f96302;
   border-radius: 3px 3px 0 0;
   -webkit-border-radius: 3px 3px 0 0;
+}
+.calendar-day span{
+  position: relative;
 }
 .tail-datetime-calendar .calendar-navi span {
   cursor: pointer;
@@ -137,6 +148,7 @@
   position: relative;
   font-size: 14px;
   background-color: #ffffff;
+  padding:4px 0px;
 }
 .tail-datetime-calendar .calendar-date table tbody tr > * > span {
   color: inherit;
